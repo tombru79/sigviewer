@@ -83,6 +83,12 @@ public:
     //-------------------------------------------------------------------------
     QSharedPointer<DataBlock const> getDownsampledMax (ChannelID id, unsigned factor) const;
 
+    //-----------------------------------------------------------------------------
+    QSharedPointer<DataBlock const> getDownSamplesMinDataNew (ChannelID id, unsigned factor, unsigned start_pos, unsigned length) const;
+
+    //-----------------------------------------------------------------------------
+    QSharedPointer<DataBlock const> getDownSamplesMaxDataNew (ChannelID id, unsigned factor, unsigned start_pos, unsigned length) const;
+
     //-------------------------------------------------------------------------
     float64 getValueRange (std::set<ChannelID> const& channels) const;
 
@@ -110,6 +116,7 @@ protected:
 private:
     //-------------------------------------------------------------------------
     void initMinMax () const;
+    void initDownsamplesMinMax(ChannelID channel_id, unsigned factor_multiplier, unsigned up_to_factor, unsigned prev_factor) const;
 
     mutable bool min_max_initialized_;
     mutable std::map<ChannelID, float64> max_values_;
@@ -118,8 +125,8 @@ private:
 
     QString x_axis_unit_label_;
 
-    QMap<ChannelID, QMap<unsigned, QSharedPointer<DataBlock const> > > downsampled_max_map_; // [channel][factor] -> maximum downsampled_data
-    QMap<ChannelID, QMap<unsigned, QSharedPointer<DataBlock const> > > downsampled_min_map_; // [channel][factor] -> minimum downsampled_data
+    mutable QMap<ChannelID, QMap<unsigned, QSharedPointer<DataBlock const> > > downsampled_max_map_; // [channel][factor] -> maximum downsampled_data
+    mutable QMap<ChannelID, QMap<unsigned, QSharedPointer<DataBlock const> > > downsampled_min_map_; // [channel][factor] -> minimum downsampled_data
 
 };
 

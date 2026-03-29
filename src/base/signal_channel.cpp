@@ -20,7 +20,7 @@ SignalChannel::SignalChannel(unsigned ch, const HDRTYPE* hdr) :
     lowpass_(hdr->CHANNEL[ch].LowPass),
     highpass_(hdr->CHANNEL[ch].HighPass),
     notch_(hdr->CHANNEL[ch].Notch),
-    number_of_samples_(hdr->NRec * (hdr->SampleRate/hdr->CHANNEL[ch].SPR))
+    number_of_samples_(hdr->NRec * (hdr->SampleRate / (hdr->SPR / hdr->CHANNEL[ch].SPR)))
 {
 #if (BIOSIG_VERSION < 10400)
     char tmpstr[30];

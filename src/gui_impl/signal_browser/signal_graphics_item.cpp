@@ -247,12 +247,21 @@ void SignalGraphicsItem::paint (QPainter* painter, const QStyleOptionGraphicsIte
     QRectF clip (option->exposedRect);
 
     double pixel_per_sample = signal_view_settings_->getChannelPixelsPerSampleNew(id_);
-    double pixel_per_sample_old = signal_view_settings_->getPixelsPerSample();
-    std::cout << id_ << ": " << pixel_per_sample << " / " << pixel_per_sample_old << std::endl;
+    size_t number_of_samples = channel_manager_.getChannelNumberSamplesNew(id_);
+
+    size_t optimal_down_sampling = 1;
+    while (pixel_per_sample * optimal_down_sampling < 1 / 4.0)
+        optimal_down_sampling *= 4;
+
+    unsigned down_sampling = channel_manager_.getNearestDownsamplingFactor(id_, optimal_down_sampling);
+    std::cout << id_ << ": " << pixel_per_sample << " " << optimal_down_sampling<< " " << down_sampling <<  std::endl;
+
+    pixel_per_sample *= down_sampling;
+    number_of_samples = std::ceil(number_of_samples/float32(down_sampling));
 
     double delta = pixel_per_sample;
-    //if (pixel_per_sample > delta)
-    //    delta = pixel_per_sample;
+    //if (delta < 10)
+    //    delta = 10;
 
     double last_x = clip.x () - delta;
 
@@ -268,53 +277,114 @@ void SignalGraphicsItem::paint (QPainter* painter, const QStyleOptionGraphicsIte
         length = width_ - last_x;
 
     length /= pixel_per_sample;
-    if (length < channel_manager_.getChannelNumberSamplesNew(id_) - start_sample)
+    if (length < number_of_samples - start_sample)
         length++;
 
-
-    QSharedPointer<DataBlock const> data_block = channel_manager_.getDataNew (id_, start_sample, length);
-
-    last_x = start_sample * pixel_per_sample;
-
-    float64 last_y = (*data_block)[0];
-    float64 new_y = 0;
-
-    if (draw_x_grid_)
-        drawXGrid (painter, option);
-
-    if (draw_y_grid_)
-        drawYGrid (painter, option);
-
-    //You can't draw the lines here because it's after the clipping, thus the lower border is always
-    //overwritten by the next channel, and the lower border of the last channel is never shown
-//    if (draw_separator && !channel_overlapping)
-//    {
-//        painter->setPen(label_color_);
-//        painter->drawLine(0, 0, width_, 0);
-//        painter->drawLine(0, height_, width_, height_);
-//    }
-
-    painter->translate (0, height_ / 2.0f);
-    painter->setPen (color_manager_->getChannelColor (id_));
-
-
-    for (int index = 0;
-         index < static_cast<int>(data_block->size()) - 1;
-         index++)
+    if (down_sampling == 1)
     {
-        new_y = (*data_block)[index+1];
+        QSharedPointer<DataBlock const> data_block = channel_manager_.getDataNew (id_, start_sample, length);
 
-        //!Draw nothing if NAN
-        if (!std::isnan(last_y) && !std::isnan(new_y))
+        last_x = start_sample * pixel_per_sample;
+
+        float64 last_y = (*data_block)[0];
+        float64 new_y = 0;
+
+        if (draw_x_grid_)
+            drawXGrid (painter, option);
+
+        if (draw_y_grid_)
+            drawYGrid (painter, option);
+
+        //You can't draw the lines here because it's after the clipping, thus the lower border is always
+        //overwritten by the next channel, and the lower border of the last channel is never shown
+    //    if (draw_separator && !channel_overlapping)
+    //    {
+    //        painter->setPen(label_color_);
+    //        painter->drawLine(0, 0, width_, 0);
+    //        painter->drawLine(0, height_, width_, height_);
+    //    }
+
+        painter->translate (0, height_ / 2.0f);
+        painter->setPen (color_manager_->getChannelColor (id_));
+
+
+        for (int index = 0;
+             index < static_cast<int>(data_block->size()) - 1;
+             index++)
         {
-            painter->drawLine(last_x, y_offset_ - (y_zoom_ * last_y), last_x + pixel_per_sample, y_offset_ - (y_zoom_ * new_y));
+            new_y = (*data_block)[index+1];
+
+            //!Draw nothing if NAN
+            if (!std::isnan(last_y) && !std::isnan(new_y))
+            {
+                painter->drawLine(last_x, y_offset_ - (y_zoom_ * last_y), last_x + pixel_per_sample, y_offset_ - (y_zoom_ * new_y));
+            }
+
+            last_x += pixel_per_sample;
+            last_y = new_y;
         }
-
-        last_x += pixel_per_sample;
-        last_y = new_y;
     }
+    else // down_sampling > 1
+    {
+         QSharedPointer<DataBlock const> data_block_min = channel_manager_.getDownSamplesMinDataNew (id_, down_sampling, start_sample, length);
+         QSharedPointer<DataBlock const> data_block_max = channel_manager_.getDownSamplesMaxDataNew (id_, down_sampling, start_sample, length);
 
-    return;
+         last_x = start_sample * pixel_per_sample;
+
+         float64 last_y_min = (*data_block_min)[0];
+         float64 new_y_min = 0;
+
+         float64 last_y_max = (*data_block_max)[0];
+         float64 new_y_max = 0;
+
+         if (draw_x_grid_)
+             drawXGrid (painter, option);
+
+         if (draw_y_grid_)
+             drawYGrid (painter, option);
+
+         //You can't draw the lines here because it's after the clipping, thus the lower border is always
+         //overwritten by the next channel, and the lower border of the last channel is never shown
+     //    if (draw_separator && !channel_overlapping)
+     //    {
+     //        painter->setPen(label_color_);
+     //        painter->drawLine(0, 0, width_, 0);
+     //        painter->drawLine(0, height_, width_, height_);
+     //    }
+
+         painter->translate (0, height_ / 2.0f);
+         painter->setPen (color_manager_->getChannelColor (id_));
+
+         for (int index = 0;
+              index < static_cast<int>(data_block_min->size()) - 1;
+              index++)
+         {
+             new_y_min = (*data_block_min)[index+1];
+             new_y_max = (*data_block_max)[index+1];
+
+             //!Draw nothing if NAN
+             if (!std::isnan(last_y_min) && !std::isnan(last_y_max) && index == 0)
+             {
+                 painter->drawLine(last_x, y_offset_ - (y_zoom_ * last_y_min), last_x, y_offset_ - (y_zoom_ * last_y_max));
+             }
+
+             //!Draw nothing if NAN
+             if (!std::isnan(last_y_min) && !std::isnan(new_y_max))
+             {
+                 painter->drawLine(last_x, y_offset_ - (y_zoom_ * last_y_min), last_x + pixel_per_sample, y_offset_ - (y_zoom_ * new_y_max));
+             }
+
+             //!Draw nothing if NAN
+             if (!std::isnan(new_y_min) && !std::isnan(new_y_max))
+             {
+                 painter->drawLine(last_x + pixel_per_sample, y_offset_ - (y_zoom_ * new_y_min), last_x + pixel_per_sample, y_offset_ - (y_zoom_ * new_y_max));
+             }
+
+             last_x += pixel_per_sample;
+             last_y_min = new_y_min;
+             last_y_max = new_y_max;
+         }
+    }
 }
 
 //-----------------------------------------------------------------------------
