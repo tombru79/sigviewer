@@ -77,32 +77,53 @@ QString ChannelManagerImpl::getChannelYUnitString (ChannelID id) const
 
 
 //-----------------------------------------------------------------------------
-QSharedPointer<DataBlock const> ChannelManagerImpl::getData (ChannelID id, unsigned start_pos, unsigned length) const
+QSharedPointer<DataBlock const> ChannelManagerImpl::getDataOld_ (ChannelID id, unsigned start_pos, unsigned length) const
 {
-    if (((start_pos + length) > getNumberSamples()) || length == 0)
+    if (((start_pos + length) > getNumberSamplesOld_()) || length == 0)
         return QSharedPointer<DataBlock const> (0);
     else
-        return reader_->getSignalData (id, start_pos, length);
+        return reader_->getSignalDataOld_ (id, start_pos, length);
+}
+
+//-----------------------------------------------------------------------------
+QSharedPointer<DataBlock const> ChannelManagerImpl::getDataNew (ChannelID id, unsigned start_pos, unsigned length) const
+{
+    if (((start_pos + length) > getChannelNumberSamplesNew(id)) || length == 0)
+        return QSharedPointer<DataBlock const> (0);
+    else
+        return reader_->getSignalDataNew (id, start_pos, length);
 }
 
 //-----------------------------------------------------------------------------
 float64 ChannelManagerImpl::getDurationInSec () const
 {
-    return reader_->getBasicHeader()->getNumberOfSamples() /
-           reader_->getBasicHeader()->getSampleRate();
+    return reader_->getBasicHeader()->getNumberOfSamplesOld_() /
+           reader_->getBasicHeader()->getSampleRateOld_();
 }
 
 
 //-----------------------------------------------------------------------------
-size_t ChannelManagerImpl::getNumberSamples () const
+size_t ChannelManagerImpl::getNumberSamplesOld_ () const
 {
-    return reader_->getBasicHeader()->getNumberOfSamples();
+    return reader_->getBasicHeader()->getNumberOfSamplesOld_();
 }
 
 //-----------------------------------------------------------------------------
-float64 ChannelManagerImpl::getSampleRate () const
+size_t ChannelManagerImpl::getChannelNumberSamplesNew (ChannelID id) const
 {
-    return reader_->getBasicHeader()->getSampleRate();
+    return reader_->getBasicHeader()->getChannelNumberOfSamplesNew(id);
+}
+
+//-----------------------------------------------------------------------------
+float64 ChannelManagerImpl::getSampleRateOld_ () const
+{
+    return reader_->getBasicHeader()->getSampleRateOld_();
+}
+
+//-----------------------------------------------------------------------------
+float64 ChannelManagerImpl::getChannelSampleRateNew (ChannelID id) const
+{
+    return reader_->getBasicHeader()->getChannelSampleRateNew(id);
 }
 
 }

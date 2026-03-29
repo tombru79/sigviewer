@@ -85,7 +85,7 @@ void XAxisWidget::changeLabelColor(QColor labelColor)
 //-----------------------------------------------------------------------------
 void XAxisWidget::paintEvent(QPaintEvent*)
 {
-    pixel_per_sec_ = signal_view_settings_->getPixelsPerSample() * signal_view_settings_->getSampleRate();
+    pixel_per_sec_ = signal_view_settings_->getPixelsPerSample() * signal_view_settings_->getSampleRateOld_();
     intervall_ = pixel_per_sec_ * MathUtils_::round125 (100.0 / pixel_per_sec_);
 
     if (intervall_ < 1 )

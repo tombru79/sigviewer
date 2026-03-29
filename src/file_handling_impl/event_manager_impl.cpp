@@ -12,7 +12,7 @@ namespace sigviewer
 
 //-----------------------------------------------------------------------------
 EventManagerImpl::EventManagerImpl (FileSignalReader const& reader)
-    : max_event_position_ (reader.getBasicHeader()->getNumberOfSamples()),
+    : max_event_position_ (reader.getBasicHeader()->getNumberOfSamplesOld_()),
       caller_mutex_ (new QMutex)
 {
     file_type_ = reader.getBasicHeader()->getFileTypeString();

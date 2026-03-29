@@ -38,6 +38,7 @@ public:
     float64 getPhysicalMinimum() const;
     float64 getDigitalMinimum() const;
     float64 getSampleRate() const;
+    size_t getNumberOfSamples() const;
 
 private:
     // from GDF format
@@ -74,6 +75,7 @@ private:
     float64 lowpass_;
     float64 highpass_;
     float64 samplerate_;
+    size_t number_of_samples_;
     bool notch_;
 };
 

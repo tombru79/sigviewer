@@ -67,7 +67,15 @@ QString ProcessedSignalChannelManager::getChannelYUnitString (ChannelID id) cons
 }
 
 //-------------------------------------------------------------------------
-QSharedPointer<DataBlock const> ProcessedSignalChannelManager::getData (ChannelID id,
+QSharedPointer<DataBlock const> ProcessedSignalChannelManager::getDataOld_ (ChannelID id,
+                                                 unsigned start_pos,
+                                                 unsigned length) const
+{
+    return channels_[id]->createSubBlock (start_pos, length);
+}
+
+//-------------------------------------------------------------------------
+QSharedPointer<DataBlock const> ProcessedSignalChannelManager::getDataNew (ChannelID id,
                                                  unsigned start_pos,
                                                  unsigned length) const
 {
@@ -81,14 +89,32 @@ float64 ProcessedSignalChannelManager::getDurationInSec() const
 }
 
 //-------------------------------------------------------------------------
-size_t ProcessedSignalChannelManager::getNumberSamples() const
+size_t ProcessedSignalChannelManager::getNumberSamplesOld_() const
 {
     return length_;
 }
 
 //-------------------------------------------------------------------------
-float64 ProcessedSignalChannelManager::getSampleRate() const
+size_t ProcessedSignalChannelManager::getChannelNumberSamplesNew (ChannelID id) const
 {
+    if (channels_.contains(id))
+        return channels_[id]->size();
+
+    return length_;
+}
+
+//-------------------------------------------------------------------------
+float64 ProcessedSignalChannelManager::getSampleRateOld_() const
+{
+    return sample_rate_;
+}
+
+//-------------------------------------------------------------------------
+float64 ProcessedSignalChannelManager::getChannelSampleRateNew (ChannelID id) const
+{
+    if (channels_.contains(id))
+        return channels_[id]->getSampleRatePerUnit();
+
     return sample_rate_;
 }
 

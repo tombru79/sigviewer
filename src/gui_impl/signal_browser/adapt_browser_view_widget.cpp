@@ -137,7 +137,7 @@ void AdaptBrowserViewWidget::on_secsPerPageSpinbox_valueChanged (double value)
 
     self_updating_ = true;
     float new_pixels_per_sample = signal_visualisation_view_->getViewportWidth() /
-                                (value * settings_->getChannelManager().getSampleRate());
+                                (value * settings_->getChannelManager().getSampleRateOld_());
 
     GuiHelper::animateProperty (settings_.data(), "pixelsPerSample", settings_->getPixelsPerSample(),
                                 new_pixels_per_sample, this, SLOT(selfUpdatingFinished()));
@@ -159,7 +159,7 @@ void AdaptBrowserViewWidget::updateValues ()
 
     ui_.secsPerPageSpinbox->setValue ((signal_visualisation_view_->getViewportWidth() /
                                        settings_->getPixelsPerSample()) /
-                                      settings_->getChannelManager().getSampleRate());
+                                      settings_->getChannelManager().getSampleRateOld_());
     updating_values_ = false;
 }
 

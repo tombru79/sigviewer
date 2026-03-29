@@ -43,18 +43,32 @@ public:
     /// @param channel_id the id of the channel
     /// @param start_pos starting sample
     /// @param length length given in samples
-    virtual QSharedPointer<DataBlock const> getData (ChannelID id,
-                                                     unsigned start_pos,
-                                                     unsigned length) const = 0;
+    virtual QSharedPointer<DataBlock const> getDataOld_ (ChannelID id,
+                                                        unsigned start_pos,
+                                                        unsigned length) const = 0;
+
+    //-------------------------------------------------------------------------
+    /// @param channel_id the id of the channel
+    /// @param start_pos starting sample
+    /// @param length length given in samples
+    virtual QSharedPointer<DataBlock const> getDataNew (ChannelID id,
+                                                        unsigned start_pos,
+                                                        unsigned length) const = 0;
 
     //-------------------------------------------------------------------------
     virtual float64 getDurationInSec () const = 0;
 
     //-------------------------------------------------------------------------
-    virtual size_t getNumberSamples () const = 0;
+    virtual size_t getNumberSamplesOld_ () const = 0;
 
     //-------------------------------------------------------------------------
-    virtual float64 getSampleRate () const = 0;
+    virtual size_t getChannelNumberSamplesNew (ChannelID id) const = 0;
+
+    //-------------------------------------------------------------------------
+    virtual float64 getSampleRateOld_ () const = 0;
+
+    //-------------------------------------------------------------------------
+    virtual float64 getChannelSampleRateNew (ChannelID id) const = 0;
 
     //-------------------------------------------------------------------------
     void addDownsampledMinMaxVersion (ChannelID id, QSharedPointer<DataBlock const> min,

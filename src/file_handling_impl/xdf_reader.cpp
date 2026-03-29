@@ -65,7 +65,7 @@ QPair<FileSignalReader*, QString> XDFReader::createInstance (QString const& file
 }
 
 //-----------------------------------------------------------------------------
-QSharedPointer<DataBlock const> XDFReader::getSignalData (ChannelID channel_id,
+QSharedPointer<DataBlock const> XDFReader::getSignalDataOld_ (ChannelID channel_id,
                                        size_t start_sample,
                                        size_t length) const
 {
@@ -77,12 +77,35 @@ QSharedPointer<DataBlock const> XDFReader::getSignalData (ChannelID channel_id,
     if (!channel_map_.contains(channel_id))
         return QSharedPointer<DataBlock const> (0);
 
-    if (length == basic_header_->getNumberOfSamples() &&
+    if (length == basic_header_->getNumberOfSamplesOld_() &&
         start_sample == 0)
         return channel_map_[channel_id];
     else
         return channel_map_[channel_id]->createSubBlock (start_sample, length);
 }
+
+//-----------------------------------------------------------------------------
+QSharedPointer<DataBlock const> XDFReader::getSignalDataNew (ChannelID channel_id,
+                                       size_t start_sample,
+                                       size_t length) const
+{
+    //TODO
+
+    QMutexLocker lock (&mutex_);
+
+    if (!buffered_all_channels_)
+        bufferAllChannels();
+
+    if (!channel_map_.contains(channel_id))
+        return QSharedPointer<DataBlock const> (0);
+
+    if (length == basic_header_->getChannelNumberOfSamplesNew(channel_id) &&
+        start_sample == 0)
+        return channel_map_[channel_id];
+    else
+        return channel_map_[channel_id]->createSubBlock (start_sample, length);
+}
+
 
 //-----------------------------------------------------------------------------
 QList<QSharedPointer<SignalEvent const> > XDFReader::getEvents () const

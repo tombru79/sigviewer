@@ -15,7 +15,7 @@ namespace sigviewer
 //-----------------------------------------------------------------------------
 BiosigBasicHeader::BiosigBasicHeader (HDRTYPE* raw_header, QString const& file_path)
     : BasicHeader (file_path),
-      number_samples_ (raw_header->NRec * raw_header->SPR)
+      number_samples_old_ (raw_header->NRec * raw_header->SPR)
 {
     if (raw_header->EVENT.CodeDesc)
     {
@@ -31,7 +31,7 @@ BiosigBasicHeader::BiosigBasicHeader (HDRTYPE* raw_header, QString const& file_p
 
     float64 sampling_rate = raw_header->SampleRate;
 
-    setSampleRate (sampling_rate);
+    setSampleRateOld_ (sampling_rate);
     readChannelsInfo (raw_header);
     readPatientInfo (raw_header);
     readRecordingInfo (raw_header);
@@ -40,7 +40,7 @@ BiosigBasicHeader::BiosigBasicHeader (HDRTYPE* raw_header, QString const& file_p
 //!alternative for XDF---------------------------------------------------------
 BiosigBasicHeader::BiosigBasicHeader (QString file_format, QString const& file_path)
     : BasicHeader (file_path),
-      number_samples_ (XDFdata->totalLen)
+      number_samples_old_ (XDFdata->totalLen)
 {
     if (XDFdata->dictionary.size())
     {
@@ -57,15 +57,25 @@ BiosigBasicHeader::BiosigBasicHeader (QString file_format, QString const& file_p
 
     float64 sampling_rate = XDFdata->majSR;
 
-    setSampleRate (sampling_rate);
+    setSampleRateOld_ (sampling_rate);
     readChannelsInfo (file_format);
 }
 
 
 //-----------------------------------------------------------------------------
-size_t BiosigBasicHeader::getNumberOfSamples () const
+size_t BiosigBasicHeader::getNumberOfSamplesOld_ () const
 {
-    return ceil(static_cast<double>(number_samples_));
+    return ceil(static_cast<double>(number_samples_old_));
+}
+
+//-------------------------------------------------------------------------
+size_t BiosigBasicHeader::getChannelNumberOfSamplesNew (ChannelID id) const
+{
+    const auto channel = getChannel(id);
+    if (channel)
+        return channel->getNumberOfSamples();
+
+    return getNumberOfSamplesOld_(); // TODO: check fallback!!!
 }
 
 //-----------------------------------------------------------------------------

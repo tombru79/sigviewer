@@ -76,7 +76,7 @@ void BioSigReader::doClose () const
 }
 
 //-----------------------------------------------------------------------------
-QSharedPointer<DataBlock const> BioSigReader::getSignalData (ChannelID channel_id,
+QSharedPointer<DataBlock const> BioSigReader::getSignalDataOld_ (ChannelID channel_id,
                                        size_t start_sample,
                                        size_t length) const
 {
@@ -85,14 +85,34 @@ QSharedPointer<DataBlock const> BioSigReader::getSignalData (ChannelID channel_i
     if (!buffered_all_channels_)
         bufferAllChannels();
 
-    if (!channel_map_.contains(channel_id))
+    if (!channel_map_old_.contains(channel_id))
         return QSharedPointer<DataBlock const> (0);
 
-    if (length == basic_header_->getNumberOfSamples() &&
+    if (length == basic_header_->getNumberOfSamplesOld_() &&
         start_sample == 0)
-        return channel_map_[channel_id];
+        return channel_map_old_[channel_id];
     else
-        return channel_map_[channel_id]->createSubBlock (start_sample, length);
+        return channel_map_old_[channel_id]->createSubBlock (start_sample, length);
+}
+
+//-----------------------------------------------------------------------------
+QSharedPointer<DataBlock const> BioSigReader::getSignalDataNew (ChannelID channel_id,
+                                       size_t start_sample,
+                                       size_t length) const
+{
+    QMutexLocker lock (&mutex_);
+
+    if (!buffered_all_channels_)
+        bufferAllChannels();
+
+    if (!channel_map_new_.contains(channel_id))
+        return QSharedPointer<DataBlock const> (0);
+
+    if (length == basic_header_->getChannelNumberOfSamplesNew(channel_id) &&
+        start_sample == 0)
+        return channel_map_new_[channel_id];
+    else
+        return channel_map_new_[channel_id]->createSubBlock (start_sample, length);
 }
 
 //-----------------------------------------------------------------------------
@@ -215,12 +235,28 @@ void BioSigReader::bufferAllChannels () const
     {
         ProgressBar::instance().increaseValue (1, progress_name);
 
-        QSharedPointer<QVector<float32> > raw_data(new QVector<float32> (numberOfSamples, NAN));
-        for (size_t data_index = 0; data_index < numberOfSamples; data_index++)
-            raw_data->operator [](data_index) = read_data[data_index + channel_id * numberOfSamples];
+        // fill channel_map_old_
+        {
+            QSharedPointer<QVector<float32> > raw_data_old(new QVector<float32> (numberOfSamples, NAN));
+            for (size_t data_index = 0; data_index < numberOfSamples; data_index++)
+                raw_data_old->operator [](data_index) = read_data[data_index + channel_id * numberOfSamples];
 
-        QSharedPointer<DataBlock const> data_block(new FixedDataBlock(raw_data, basic_header_->getSampleRate()));
-        channel_map_[channel_id] = data_block;
+            QSharedPointer<DataBlock const> data_block_old(new FixedDataBlock(raw_data_old, basic_header_->getSampleRateOld_()));
+            channel_map_old_[channel_id] = data_block_old;
+        }
+
+        // fill channel_map_new_
+        {
+            size_t channelNumberOfSamples = basic_header_->getChannelNumberOfSamplesNew(channel_id);
+            size_t raw_index_ratio = (numberOfSamples / channelNumberOfSamples);
+
+            QSharedPointer<QVector<float32> > raw_data_new(new QVector<float32> (channelNumberOfSamples, NAN));
+            for (size_t data_index = 0; data_index < channelNumberOfSamples; data_index++)
+                raw_data_new->operator [](data_index) = read_data[data_index * raw_index_ratio + channel_id * numberOfSamples];
+
+            QSharedPointer<DataBlock const> data_block_new(new FixedDataBlock(raw_data_new, basic_header_->getChannel(channel_id)->getSampleRate()));
+            channel_map_new_[channel_id] = data_block_new;
+        }
     }
 
     buffered_all_channels_ = true;

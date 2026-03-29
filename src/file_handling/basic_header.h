@@ -41,7 +41,10 @@ public:
     {return recording_info_;}
 
     //-------------------------------------------------------------------------
-    float64 getSampleRate () const;
+    float64 getSampleRateOld_ () const;
+
+    //-------------------------------------------------------------------------
+    float64 getChannelSampleRateNew (ChannelID id) const;
 
     //-------------------------------------------------------------------------
     QSharedPointer<SignalChannel const> getChannel (ChannelID id) const;
@@ -50,7 +53,10 @@ public:
     unsigned getNumberChannels() const;
 
     //-------------------------------------------------------------------------
-    virtual size_t getNumberOfSamples () const = 0;
+    virtual size_t getNumberOfSamplesOld_ () const = 0;
+
+    //-------------------------------------------------------------------------
+    virtual size_t getChannelNumberOfSamplesNew (ChannelID id) const = 0;
 
     //-------------------------------------------------------------------------
     virtual QMap<unsigned, QString> getNamesOfUserSpecificEvents () const
@@ -76,7 +82,7 @@ protected:
 
     //-------------------------------------------------------------------------
     /// required
-    void setSampleRate (float64 sample_rate);
+    void setSampleRateOld_ (float64 sample_rate);
 
     //-------------------------------------------------------------------------
     /// required
@@ -95,7 +101,7 @@ protected:
 private:
     QString const file_path_;
     QString file_type_string_;
-    float64 sample_rate_;
+    float64 sample_rate_old_;
     QMap<ChannelID, QSharedPointer<SignalChannel const> > channels_;
     QMap<QString, QString> recording_info_;
     QMap<QString, QString> patient_info_;

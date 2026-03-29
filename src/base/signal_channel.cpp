@@ -19,7 +19,8 @@ SignalChannel::SignalChannel(unsigned ch, const HDRTYPE* hdr) :
     data_type_(hdr->CHANNEL[ch].GDFTYP),
     lowpass_(hdr->CHANNEL[ch].LowPass),
     highpass_(hdr->CHANNEL[ch].HighPass),
-    notch_(hdr->CHANNEL[ch].Notch)
+    notch_(hdr->CHANNEL[ch].Notch),
+    number_of_samples_(hdr->NRec * (hdr->SampleRate/hdr->CHANNEL[ch].SPR))
 {
 #if (BIOSIG_VERSION < 10400)
     char tmpstr[30];
@@ -69,6 +70,11 @@ SignalChannel::SignalChannel(unsigned ch, QString file_format) :
 float64 SignalChannel::getSampleRate() const
 {
     return samplerate_;
+}
+
+size_t SignalChannel::getNumberOfSamples() const
+{
+    return number_of_samples_;
 }
 
 //-----------------------------------------------------------------------------

@@ -34,9 +34,13 @@ public:
 
     virtual QPair<FileSignalReader*, QString> createInstance (QString const& file_path) = 0;
 
-    virtual QSharedPointer<DataBlock const> getSignalData (ChannelID channel_id,
-                                                           size_t start_sample,
-                                                           size_t length) const = 0;
+    virtual QSharedPointer<DataBlock const> getSignalDataOld_ (ChannelID channel_id,
+                                                              size_t start_sample,
+                                                              size_t length) const = 0;
+
+    virtual QSharedPointer<DataBlock const> getSignalDataNew (ChannelID channel_id,
+                                                              size_t start_sample,
+                                                              size_t length) const = 0;
 
     virtual QList<QSharedPointer<SignalEvent const> > getEvents () const = 0;
 

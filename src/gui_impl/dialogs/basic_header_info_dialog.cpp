@@ -297,7 +297,7 @@ void BasicHeaderInfoDialog::buildTree()
             tmp_item->setText(0, tr("Sample Rate"));
             float64 fs = channel->getSampleRate();
             if (fs < 0.0)
-                fs = basic_header_->getSampleRate();
+                fs = basic_header_->getSampleRateOld_();
             tmp_item->setText(1, tr("%1 Hz").arg(fs));
 
             tmp_item = new QTreeWidgetItem(channel_item);

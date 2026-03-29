@@ -80,7 +80,7 @@ void SignalGraphicsItem::setHeight (unsigned height)
    y_zoom_ = y_zoom_ * height / height_;
    y_offset_ = y_offset_* height / height_;
    height_ = height;
-   width_ = channel_manager_.getNumberSamples() * signal_view_settings_->getPixelsPerSample();
+   width_ = channel_manager_.getNumberSamplesOld_() * signal_view_settings_->getPixelsPerSample();
    updateYGridIntervall ();
 }
 
@@ -260,11 +260,11 @@ void SignalGraphicsItem::paint (QPainter* painter, const QStyleOptionGraphicsIte
         length = width_ - last_x;
 
     length /= pixel_per_sample;
-    if (length < channel_manager_.getNumberSamples() - start_sample)
+    if (length < channel_manager_.getNumberSamplesOld_() - start_sample)
         length++;
 
 
-    QSharedPointer<DataBlock const> data_block = channel_manager_.getData (id_, start_sample, length);
+    QSharedPointer<DataBlock const> data_block = channel_manager_.getDataOld_ (id_, start_sample, length);
 
     last_x = start_sample * pixel_per_sample;
 
@@ -375,7 +375,7 @@ void SignalGraphicsItem::mouseMoveEvent (QGraphicsSceneMouseEvent* event)
         update (update_start, 0, update_end - update_start, height_);
 
         emit mouseAtSecond (sample_cleaned_pos / pixel_per_sample *
-                                   channel_manager_.getSampleRate());
+                                   channel_manager_.getSampleRateOld_());
     }
     else
         event->ignore();
@@ -387,7 +387,7 @@ void SignalGraphicsItem::hoverMoveEvent (QGraphicsSceneHoverEvent* event)
     unsigned sample_pos = event->scenePos().x() / signal_view_settings_->getPixelsPerSample ();
 
     emit mouseMoving (true);
-    emit mouseAtSecond (sample_pos / channel_manager_.getSampleRate());
+    emit mouseAtSecond (sample_pos / channel_manager_.getSampleRateOld_());
 
     if (event_manager_.isNull())
         return;
@@ -606,7 +606,7 @@ void SignalGraphicsItem::drawXGrid (QPainter* painter,
                                     QStyleOptionGraphicsItem const* option)
 {
     double pixel_per_sample = signal_view_settings_->getPixelsPerSample();
-    double pixel_per_sec_ = pixel_per_sample * signal_view_settings_->getSampleRate();
+    double pixel_per_sec_ = pixel_per_sample * signal_view_settings_->getSampleRateOld_();
     double interval_ = pixel_per_sec_ * MathUtils_::round125 (100.0 / pixel_per_sec_);
     if (interval_ < 1)
         return;

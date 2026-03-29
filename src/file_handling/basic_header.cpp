@@ -15,9 +15,18 @@ QString BasicHeader::getFileTypeString() const
 }
 
 //-----------------------------------------------------------------------------
-float64 BasicHeader::getSampleRate() const
+float64 BasicHeader::getSampleRateOld_() const
 {
-    return sample_rate_;
+    return sample_rate_old_;
+}
+
+//-------------------------------------------------------------------------
+float64 BasicHeader::getChannelSampleRateNew (ChannelID id) const
+{
+    if (channels_.contains(id))
+        return channels_[id]->getSampleRate();
+
+    return sample_rate_old_;
 }
 
 //-----------------------------------------------------------------------------
@@ -34,7 +43,7 @@ void BasicHeader::setNumberEvents(uint32 number_events)
 // get event samplerate
 double BasicHeader::getEventSamplerate() const
 {
-    return sample_rate_;
+    return sample_rate_old_;
 }
 
 void BasicHeader::setEventSamplerate(double event_sample_rate)
@@ -64,9 +73,9 @@ void BasicHeader::setFileTypeString(QString const& file_type_string)
 }
 
 //-------------------------------------------------------------------------
-void BasicHeader::setSampleRate(float64 sample_rate)
+void BasicHeader::setSampleRateOld_(float64 sample_rate)
 {
-    sample_rate_ = sample_rate;
+    sample_rate_old_ = sample_rate;
 }
 
 //-------------------------------------------------------------------------

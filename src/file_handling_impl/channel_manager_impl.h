@@ -44,18 +44,31 @@ public:
     virtual QString getChannelYUnitString (ChannelID id) const;
 
     //-------------------------------------------------------------------------
-    virtual QSharedPointer<DataBlock const> getData (ChannelID id,
-                                                     unsigned start_pos,
-                                                     unsigned length) const;
+    virtual QSharedPointer<DataBlock const> getDataOld_ (ChannelID id,
+                                                        unsigned start_pos,
+                                                        unsigned length) const;
+
+
+    //-------------------------------------------------------------------------
+    virtual QSharedPointer<DataBlock const> getDataNew (ChannelID id,
+                                                        unsigned start_pos,
+                                                        unsigned length) const;
 
     //-------------------------------------------------------------------------
     virtual float64 getDurationInSec() const;
 
     //-------------------------------------------------------------------------
-    virtual size_t getNumberSamples() const;
+    virtual size_t getNumberSamplesOld_() const;
 
     //-------------------------------------------------------------------------
-    virtual float64 getSampleRate() const;
+    virtual size_t getChannelNumberSamplesNew (ChannelID id) const;
+
+    //-------------------------------------------------------------------------
+    virtual float64 getSampleRateOld_() const;
+
+    //-------------------------------------------------------------------------
+    virtual float64 getChannelSampleRateNew (ChannelID id) const;
+
 
 private:
     FileSignalReader* reader_;

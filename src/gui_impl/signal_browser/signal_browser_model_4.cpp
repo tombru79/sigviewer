@@ -227,7 +227,7 @@ void SignalBrowserModel::zoomOutAll()
 //-----------------------------------------------------------------------------
 void SignalBrowserModel::update()
 {
-    int32 width = channel_manager_.getNumberSamples()
+    int32 width = channel_manager_.getNumberSamplesOld_()
                   * getSignalViewSettings()->getPixelsPerSample();
 
     int32 height = LayoutFunctions_::getSceneHeight (channel2signal_item_.size(),
@@ -236,7 +236,7 @@ void SignalBrowserModel::update()
 
     signal_browser_view_->resizeScene (width, height);
 
-    double pixel_per_sec = getSignalViewSettings()->getPixelsPerSample() * channel_manager_.getSampleRate();
+    double pixel_per_sec = getSignalViewSettings()->getPixelsPerSample() * channel_manager_.getSampleRateOld_();
     x_grid_pixel_intervall_ =  pixel_per_sec * MathUtils_::round125 (100.0 / pixel_per_sec);
 
     channel2y_pos_.clear();

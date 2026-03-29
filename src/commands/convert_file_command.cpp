@@ -24,7 +24,7 @@ QString ConvertFileCommand::execute ()
         return open_error;
 
     QSharedPointer<FileSignalWriter> writer (FileSignalWriterFactory::getInstance()->getHandler (destination_file_path_));
-    ProgressBar::instance().initAndShow (application_context_->getCurrentFileContext()->getChannelManager().getNumberSamples() +
+    ProgressBar::instance().initAndShow (application_context_->getCurrentFileContext()->getChannelManager().getNumberSamplesOld_() +
                                          application_context_->getCurrentFileContext()->getEventManager()->getNumberOfEvents(), QObject::tr("Converting"),
                                          application_context_);
     QString result = writer->save (application_context_->getCurrentFileContext());

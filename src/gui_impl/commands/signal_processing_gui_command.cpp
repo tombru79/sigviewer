@@ -86,10 +86,10 @@ void SignalProcessingGuiCommand::calculateMeanAndStandardDeviation ()
     if (event_dialog.isNull())
         return;
 
-    unsigned num_samples = channel_manager.getSampleRate() * event_dialog->getLengthInSeconds ();
-    unsigned samples_before = channel_manager.getSampleRate() * event_dialog->getSecondsBeforeEvent ();
+    unsigned num_samples = channel_manager.getSampleRateOld_() * event_dialog->getLengthInSeconds ();
+    unsigned samples_before = channel_manager.getSampleRateOld_() * event_dialog->getSecondsBeforeEvent ();
 
-    ProcessedSignalChannelManager* processed_channel_manager (new ProcessedSignalChannelManager(channel_manager.getSampleRate(),
+    ProcessedSignalChannelManager* processed_channel_manager (new ProcessedSignalChannelManager(channel_manager.getSampleRateOld_(),
                                                                                                                num_samples, currentFileContext().data()));
     processed_channel_manager->setXAxisUnitLabel(channel_manager.getXAxisUnitLabel());
     ChannelID new_channel_id = 0;
@@ -108,7 +108,7 @@ void SignalProcessingGuiCommand::calculateMeanAndStandardDeviation ()
                 continue;
             }
 
-            QSharedPointer<DataBlock const> data_block = channel_manager.getData (channel_id,
+            QSharedPointer<DataBlock const> data_block = channel_manager.getDataOld_ (channel_id,
                                                                                    event->getPosition() - samples_before,
                                                                                    num_samples);
             if (!data_block.isNull())
@@ -140,14 +140,14 @@ void SignalProcessingGuiCommand::calculatePowerSpectrum ()
     if (event_dialog.isNull())
         return;
 
-    unsigned num_samples = channel_manager.getSampleRate() * event_dialog->getLengthInSeconds ();
-    unsigned samples_before = channel_manager.getSampleRate() * event_dialog->getSecondsBeforeEvent ();
+    unsigned num_samples = channel_manager.getSampleRateOld_() * event_dialog->getLengthInSeconds ();
+    unsigned samples_before = channel_manager.getSampleRateOld_() * event_dialog->getSecondsBeforeEvent ();
 
     unsigned fft_samples = 1;
     while (fft_samples < num_samples)
         fft_samples *= 2;
 
-    ProcessedSignalChannelManager* processed_channel_manager (new ProcessedSignalChannelManager(static_cast<float32>(fft_samples) / channel_manager.getSampleRate(),
+    ProcessedSignalChannelManager* processed_channel_manager (new ProcessedSignalChannelManager(static_cast<float32>(fft_samples) / channel_manager.getSampleRateOld_(),
                                                                                                                fft_samples / 2, currentFileContext().data()));
     processed_channel_manager->setXAxisUnitLabel ("Hz");
     QList<EventID> events (event_manager->getEvents(event_dialog->getSelectedEventType ()));
@@ -167,7 +167,7 @@ void SignalProcessingGuiCommand::calculatePowerSpectrum ()
                 QMessageBox::warning (0, tr("Warning"), QString("Event at %1s will be ignored! (because no data can be added in front of this event)").arg(QString::number(event->getPositionInSec())));
                 continue;
             }
-            QSharedPointer<DataBlock const> data_block = channel_manager.getData (channel_id,
+            QSharedPointer<DataBlock const> data_block = channel_manager.getDataOld_ (channel_id,
                                                                                    event->getPosition() - samples_before,
                                                                                    num_samples);
             if (!data_block.isNull())

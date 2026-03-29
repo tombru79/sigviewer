@@ -64,6 +64,7 @@ float64 ChannelManager::getMinValue (std::set<ChannelID> const& channels) const
 {
     if (!min_max_initialized_)
         initMinMax();
+
     float64 min = std::numeric_limits<float64>::max();
     for (const auto channel : channels)
         min = std::min (min, min_values_[channel]);
@@ -113,9 +114,20 @@ void ChannelManager::initMinMax () const
         return;
     for (const auto id : getChannels())
     {
-        QSharedPointer<DataBlock const> data = getData (id, 0, getNumberSamples ());
-        max_values_[id] = data->getMax ();
-        min_values_[id] = data->getMin ();
+        // old
+        {
+            QSharedPointer<DataBlock const> data = getDataOld_ (id, 0, getNumberSamplesOld_ ());
+            max_values_[id] = data->getMax ();
+            min_values_[id] = data->getMin ();
+        }
+
+        // new
+        {
+            QSharedPointer<DataBlock const> data = getDataNew (id, 0, getChannelNumberSamplesNew(id));
+            max_values_[id] = data->getMax ();
+            min_values_[id] = data->getMin ();
+        }
+
         ProgressBar::instance().increaseValue (1, QObject::tr("Searching for Min-Max"));
     }
     min_max_initialized_ = true;

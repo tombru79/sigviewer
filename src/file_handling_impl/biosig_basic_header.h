@@ -22,7 +22,10 @@ public:
     BiosigBasicHeader (QString file_format, QString const& file_path);
 
     //-------------------------------------------------------------------------
-    virtual size_t getNumberOfSamples () const;
+    virtual size_t getNumberOfSamplesOld_ () const;
+
+    //-------------------------------------------------------------------------
+    virtual size_t getChannelNumberOfSamplesNew (ChannelID id) const;
 
     //-------------------------------------------------------------------------
     virtual QMap<unsigned, QString> getNamesOfUserSpecificEvents () const;
@@ -43,7 +46,7 @@ private:
 
 
 
-    unsigned number_samples_;
+    unsigned number_samples_old_;
     QMap<unsigned, QString> user_defined_event_map_;
     QMap<unsigned, QSharedPointer<SignalChannel> > channels_;
 };

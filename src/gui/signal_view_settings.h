@@ -45,7 +45,7 @@ public:
     int getChannelHeight () const {return channel_heigth_in_pixels_;}
 
     //-------------------------------------------------------------------------
-    float getSampleRate () const {return channel_manager_.getSampleRate();}
+    float getSampleRateOld_ () const {return channel_manager_.getSampleRateOld_();}
 
     //-------------------------------------------------------------------------
     int getGridFragmentation (Qt::Orientation orientation) const {return grid_fragmentation_[orientation];}

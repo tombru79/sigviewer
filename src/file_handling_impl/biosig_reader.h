@@ -23,9 +23,13 @@ public:
     QPair<FileSignalReader*, QString> createInstance (QString const& file_path);
 
     //-------------------------------------------------------------------------
-    virtual QSharedPointer<DataBlock const> getSignalData (ChannelID channel_id,
-                                                           size_t start_sample,
-                                                           size_t length) const;
+    virtual QSharedPointer<DataBlock const> getSignalDataOld_ (ChannelID channel_id,
+                                                              size_t start_sample,
+                                                              size_t length) const;
+
+    virtual QSharedPointer<DataBlock const> getSignalDataNew (ChannelID channel_id,
+                                                              size_t start_sample,
+                                                              size_t length) const;
 
     //-------------------------------------------------------------------------
     virtual QList<QSharedPointer<SignalEvent const> > getEvents () const;
@@ -64,7 +68,8 @@ private:
     mutable HDRTYPE* biosig_header_;
     mutable bool buffered_all_channels_;
     mutable bool buffered_all_events_;
-    mutable QMap<ChannelID, QSharedPointer<DataBlock const> > channel_map_;
+    mutable QMap<ChannelID, QSharedPointer<DataBlock const> > channel_map_old_;
+    mutable QMap<ChannelID, QSharedPointer<DataBlock const> > channel_map_new_;
     mutable QList<QSharedPointer<SignalEvent const> > events_;
 };
 
