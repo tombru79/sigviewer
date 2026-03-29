@@ -39,6 +39,9 @@ public:
     float getPixelsPerSample () const {return pixels_per_sample_;}
 
     //-------------------------------------------------------------------------
+    float getChannelPixelsPerSampleNew (ChannelID id) const;
+
+    //-------------------------------------------------------------------------
     float getChannelOverlapping () const {return channel_overlapping_;}
 
     //-------------------------------------------------------------------------

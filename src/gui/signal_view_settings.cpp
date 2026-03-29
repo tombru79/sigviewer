@@ -19,6 +19,13 @@ SignalViewSettings::SignalViewSettings (ChannelManager const& channel_manager)
     grid_fragmentation_[Qt::Vertical] = 4;
 }
 
+
+float SignalViewSettings::getChannelPixelsPerSampleNew (ChannelID id) const
+{
+    size_t ratio = channel_manager_.getNumberSamplesOld_() / channel_manager_.getChannelNumberSamplesNew(id);
+    return pixels_per_sample_ * ratio;
+}
+
 //-----------------------------------------------------------------------------
 void SignalViewSettings::setPixelsPerSample (float pixels_per_sample)
 {

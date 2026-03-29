@@ -16,6 +16,7 @@
 #include <QToolTip>
 #include <QSettings>
 #include <cmath>
+#include <iostream>
 
 
 namespace sigviewer
@@ -245,9 +246,16 @@ void SignalGraphicsItem::paint (QPainter* painter, const QStyleOptionGraphicsIte
 
     QRectF clip (option->exposedRect);
 
-    double pixel_per_sample = signal_view_settings_->getPixelsPerSample();
+    double pixel_per_sample = signal_view_settings_->getChannelPixelsPerSampleNew(id_);
+    double pixel_per_sample_old = signal_view_settings_->getPixelsPerSample();
+    std::cout << id_ << ": " << pixel_per_sample << " / " << pixel_per_sample_old << std::endl;
 
-    double last_x = clip.x () - 10;
+    double delta = pixel_per_sample;
+    //if (pixel_per_sample > delta)
+    //    delta = pixel_per_sample;
+
+    double last_x = clip.x () - delta;
+
     if (last_x < 0)
         last_x = 0;
     unsigned start_sample = last_x / pixel_per_sample;
@@ -255,16 +263,16 @@ void SignalGraphicsItem::paint (QPainter* painter, const QStyleOptionGraphicsIte
         start_sample--;
 
     unsigned length = ((clip.x() - start_sample * pixel_per_sample)
-                       + clip.width() + 20);
+                       + clip.width() + 2 * delta);
     if (last_x + length > width_)
         length = width_ - last_x;
 
     length /= pixel_per_sample;
-    if (length < channel_manager_.getNumberSamplesOld_() - start_sample)
+    if (length < channel_manager_.getChannelNumberSamplesNew(id_) - start_sample)
         length++;
 
 
-    QSharedPointer<DataBlock const> data_block = channel_manager_.getDataOld_ (id_, start_sample, length);
+    QSharedPointer<DataBlock const> data_block = channel_manager_.getDataNew (id_, start_sample, length);
 
     last_x = start_sample * pixel_per_sample;
 
